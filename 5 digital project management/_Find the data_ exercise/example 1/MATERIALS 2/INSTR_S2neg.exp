@@ -1,0 +1,327 @@
+<survey welcome>
+/ pages = [1=welcome1; 2=welcome2; 3=listen1; 4=description1; 5=pause; 6=listen2; 7=description2]
+/ txcolor = Black
+/ fontstyle = ("Arial", 2.7%, true)
+/ showpagenumbers = false
+/ showquestionnumbers = false
+/ nextbuttonposition = (50%, 80%)
+</survey>
+
+<surveypage welcome1>
+/ caption = 
+
+"
+
+
+During this study you will be asked to pay attention to both visual and auditory stimuli.
+
+Therefore, before starting, it is important that you:
+- Wear your headphones
+- Set the volume of your own PC at a level of 30%.
+
+Please take your time, set the volume at the required level and then proceed to the next page."
+/ showpagenumbers = false
+/ backbuttonposition = (120, 120)
+</surveypage>
+
+<surveypage welcome2>
+/ caption = 
+
+"
+
+
+In the first part of the experiment, you will hear two auditory stimuli that will also be presented later on in the study.
+
+Please listen to the sounds and provide a brief description of them in the text box that you will see on the next page.
+
+Proceed to the next page to listen to the first sound."
+/ showpagenumbers = false
+/ backbuttonposition = (120, 120)
+</surveypage>
+
+<surveypage listen1>
+/ showpagenumbers = false
+/ stimulusframes = [1=test1, erasebig1]
+/timeout = 2000
+/ nextbuttonposition = (120, 120)
+/ backbuttonposition = (120, 120)
+</surveypage>
+
+<surveypage description1>
+/ showpagenumbers = false
+/ questions = [1=describe]
+/ backbuttonposition = (120, 120)
+</surveypage>
+
+<surveypage pause>
+/ caption = 
+
+"
+
+
+
+
+
+Proceed to the next page to listen to the second sound.
+
+"
+/ showpagenumbers = false
+/ backbuttonposition = (120, 120)
+</surveypage>
+
+<surveypage listen2>
+/ showpagenumbers = false
+/ stimulusframes = [1=test2, erasebig1]
+/timeout = 2000
+/ nextbuttonposition = (120%, 120%)
+/ backbuttonposition = (120, 120)
+</surveypage>
+
+<surveypage description2>
+/ showpagenumbers = false
+/ questions = [1=describe]
+/ backbuttonposition = (120, 120)
+</surveypage>
+
+<sound test1>
+/ items = ("s2.wav")
+</sound>
+
+<sound test2>
+/ items = ("s4.wav")
+</sound>
+
+<picture erasebig1>
+/ items = ("erasebig1.jpg")
+</picture>
+
+<textbox describe>
+/ caption = " Please describe this sound briefly (up to 10 words)"
+/ position = (10%,10%)
+/ textboxsize = (45, 40)
+/ multiline = true
+</textbox>
+
+<surveypage test1>
+/ showpagenumbers = false
+/ stimulusframes = [1=test1]
+/ questions = [1=describe]
+/ nextbuttonposition = (120%, 120%)
+/ backbuttonposition = (120, 120)
+</surveypage>
+
+<surveypage test2>
+/ showpagenumbers = false
+/ stimulusframes = [1=test2]
+/ questions = [1=describe]
+/ nextbuttonposition = (120%, 120%)
+/ backbuttonposition = (120, 120)
+</surveypage>
+
+
+<survey manipulation>
+/ pages = [1=inst1a; 2=inst1b; 3=inst2]
+/ txcolor = Black
+/ fontstyle = ("Arial", 2.7%, true)
+/ showpagenumbers = false
+/ showquestionnumbers = false
+/ nextbuttonposition = (50%, 80%)
+/ backbuttonposition = (120, 120)
+</survey>
+
+<surveypage inst1a>
+/ caption = 
+
+"
+
+
+We are now going to give you some information about the task you will complete later on in the experiment. 
+
+During that task, two visual stimuli (the words MORAG and STRUAN) will be presented individually on the screen for a given amount of trials.
+
+On each trial, the words can be followed or not followed by each of two sounds.
+
+"
+/ showpagenumbers = false
+/ backbuttonposition = (120, 120)
+</surveypage>
+
+<surveypage inst1b>
+/ caption = 
+
+"
+
+
+
+On the next page, you will be informed about the number of trials on which the two words (MORAG and STRUAN) will be followed or not followed by the two sounds.
+
+Later on in the experiment, you will be asked to answer some questions about this information.
+
+Please pay close attention to the information on the next page and proceed only when you have fully understood and memorized it.
+
+"
+/ showpagenumbers = false
+/ backbuttonposition = (120, 120)
+</surveypage>
+
+<surveypage inst2>
+/ fontstyle = ("Arial", 2.5%, false)
+/ txcolor = blue
+/subcaptionfontstyle = ("Arial", 2.8%, FALSE)
+/ caption = "
+
+
+
+                                                                    During the upcoming phase…"
+
+
+
+/subcaption = 
+"
+
+
+
+- STRUAN will be presented for a total of 10 times. On 8 occasions it WILL BE followed by the FIRST sound you listened to. On 2 occasions it WILL NOT BE followed by any sound.
+
+
+- MORAG WILL BE always followed by the SECOND sound you listened to.
+"
+/ showpagenumbers = false
+/ backbuttonposition = (120, 120)
+</surveypage>
+
+<survey memory1>
+/ pages = [1=inst_memory1; 2=inst_memory2]
+/ txcolor = Black
+/ fontstyle = ("Arial", 2.7%, true)
+/ showpagenumbers = false
+/ showquestionnumbers = false
+/ nextbuttonposition = (50%, 80%)
+</survey>
+
+<surveypage inst_memory1>
+/ caption = "
+
+Based on what you have just learned, please indicate how often STRUAN WILL be followed by the sounds."
+/ showpagenumbers = false
+/ questions = [1=memory1]
+/ backbuttonposition = (120, 120)
+</surveypage>
+
+<surveypage inst_memory2>
+/ caption = "
+
+Based on what you have just learned, please indicate how often MORAG WILL be followed by the sounds."
+/ showpagenumbers = false
+/ questions = [1=memory2]
+/ backbuttonposition = (120, 120)
+</surveypage>
+
+<radiobuttons memory1>
+/ fontstyle = ("Arial", 2%, true)
+/ txcolor = black
+/ subcaptionfontstyle = ("Arial", 2%, false)
+/options = ("Always followed by the FIRST sound", "9 times followed by the FIRST sound, once not followed by any sound", "8 times followed by the FIRST sound, twice not followed by any sound", "7 times followed by the FIRST sound, 3 times not followed by any sound", "6 times followed by the FIRST sound, 4 times not followed by any sound", "5 times followed by the FIRST sound, 5 times not followed by any sound", "4 times followed by the FIRST sound, 6 times not followed by any sound", "3 times followed by the FIRST sound, 7 times not followed by any sound", "Twice followed by the FIRST sound, 8 times not followed by any sound", "Once followed by the FIRST sound, 9 times not followed by any sound", "Never followed by the FIRST sound", "I don't remember")
+/ required = true
+/orientation = vertical
+/ position = (10%, 30%)
+</radiobuttons>
+
+<radiobuttons memory2>
+/ fontstyle = ("Arial", 2%, true)
+/ txcolor = black
+/ subcaptionfontstyle = ("Arial", 2%, false)
+/options = ("Always followed by the SECOND sound", "9 times followed by the SECOND sound, once not followed by any sound", "8 times followed by the SECOND sound, twice not followed by any sound", "7 times followed by the SECOND sound, 3 times not followed by any sound", "6 times followed by the SECOND sound, 4 times not followed by any sound", "5 times followed by the SECOND sound, 5 times not followed by any sound", "4 times followed by the SECOND sound, 6 times not followed by any sound", "3 times followed by the SECOND sound, 7 times not followed by any sound", "Twice followed by the SECOND sound, 8 times not followed by any sound", "Once followed by the SECOND sound, 9 times not followed by any sound", "Never followed by the SECOND sound", "I don't remember")
+/ required = true
+/orientation = vertical
+/ position = (10%, 30%)
+</radiobuttons>
+
+<survey memory_fail>
+/skip = [(radiobuttons.memory1.response == "8 times followed by the FIRST sound, twice not followed by any sound" && radiobuttons.memory2.response == "Always followed by the SECOND sound")]
+/ pages = [1=inst_fail1; 2=inst_fail2; 3=inst_memory1_fail; 4=inst_memory2_fail]
+/ txcolor = Black
+/ fontstyle = ("Arial", 2.7%, true)
+/ showpagenumbers = false
+/ showquestionnumbers = false
+/ nextbuttonposition = (50%, 80%)
+</survey>
+
+<surveypage inst_fail1>
+/ caption = "
+
+Your answers to the memory test were not correct. Please read the instructions again and then answer the memory test.
+
+
+"
+/ showpagenumbers = false
+/ backbuttonposition = (120, 120)
+</surveypage>
+
+<surveypage inst_fail2>
+/ fontstyle = ("Arial", 2.5%, false)
+/ txcolor = blue
+/subcaptionfontstyle = ("Arial", 2.8%, FALSE)
+/ caption = "
+
+
+
+                                                                    During the upcoming phase…"
+
+
+
+/subcaption = 
+"
+
+
+
+- STRUAN will be presented for a total of 10 times. On 8 occasions it WILL BE followed by the FIRST sound you listened to. On 2 occasions it WILL NOT BE followed by any sound.
+
+
+- MORAG WILL BE always followed by the SECOND sound you listened to.
+"
+/ showpagenumbers = false
+/ backbuttonposition = (120, 120)
+</surveypage>
+
+<surveypage inst_memory1_fail>
+/ caption = "
+
+Based on what you have just learned, please indicate how often STRUAN WILL be followed by the sounds."
+/ showpagenumbers = false
+/ questions = [1=memory1_fail]
+/ backbuttonposition = (120, 120)
+</surveypage>
+
+<surveypage inst_memory2_fail>
+/ caption = "
+
+Based on what you have just learned, please indicate how often MORAG WILL be followed by the sounds."
+/ showpagenumbers = false
+/ questions = [1=memory2_fail]
+/ backbuttonposition = (120, 120)
+</surveypage>
+
+<radiobuttons memory1_fail>
+/ fontstyle = ("Arial", 2%, true)
+/ txcolor = black
+/ subcaptionfontstyle = ("Arial", 2%, false)
+/options = ("Always followed by the FIRST sound", "9 times followed by the FIRST sound, once not followed by any sound", "8 times followed by the FIRST sound, twice not followed by any sound", "7 times followed by the FIRST sound, 3 times not followed by any sound", "6 times followed by the FIRST sound, 4 times not followed by any sound", "5 times followed by the FIRST sound, 5 times not followed by any sound", "4 times followed by the FIRST sound, 6 times not followed by any sound", "3 times followed by the FIRST sound, 7 times not followed by any sound", "Twice followed by the FIRST sound, 8 times not followed by any sound", "Once followed by the FIRST sound, 9 times not followed by any sound", "Never followed by the FIRST sound", "I don't remember")
+/ required = true
+/orientation = vertical
+/ position = (10%, 30%)
+</radiobuttons>
+
+<radiobuttons memory2_fail>
+/ fontstyle = ("Arial", 2%, true)
+/ txcolor = black
+/ subcaptionfontstyle = ("Arial", 2%, false)
+/options = ("Always followed by the SECOND sound", "9 times followed by the SECOND sound, once not followed by any sound", "8 times followed by the SECOND sound, twice not followed by any sound", "7 times followed by the SECOND sound, 3 times not followed by any sound", "6 times followed by the SECOND sound, 4 times not followed by any sound", "5 times followed by the SECOND sound, 5 times not followed by any sound", "4 times followed by the SECOND sound, 6 times not followed by any sound", "3 times followed by the SECOND sound, 7 times not followed by any sound", "Twice followed by the SECOND sound, 8 times not followed by any sound", "Once followed by the SECOND sound, 9 times not followed by any sound", "Never followed by the SECOND sound", "I don't remember")
+/ required = true
+/orientation = vertical
+/ position = (10%, 30%)
+</radiobuttons>
+
+<expt >
+/blocks = [1=welcome; 2=manipulation; 3=memory1; 4=memory_fail]
+</expt>

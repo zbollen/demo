@@ -1,0 +1,208 @@
+<survey exploratory>
+/ pages = [1=intro; 2=clarity; 3=belief; 4=US1eval; 5=US2eval]
+/ txcolor = Black
+/ fontstyle = ("Arial", 2.7%, true)
+/ showpagenumbers = false
+/ showquestionnumbers = false
+</survey>
+
+<surveypage intro>
+/ caption = 
+
+"
+
+
+We are now going to ask you some questions about the previous parts of the study.
+
+It is very important for us to know your real feelings and opinions.
+
+Please be honest when answering our questions"
+/ showpagenumbers = false
+</surveypage>
+
+
+<surveypage clarity>
+/ showpagenumbers = false
+/ questions = [1=clar]
+/ backbuttonposition = (120, 120)
+/ nextbuttonposition = (50%, 80%)
+/ showpagenumbers = false
+/ showquestionnumbers = false
+</surveypage>
+
+<radiobuttons clar>
+/ fontstyle = ("Arial", 2.3%, true)
+/ txcolor = black
+/ subcaptionfontstyle = ("Arial", 1.5%, false)
+/ caption ="How clear were the instructions about the number of trials on which the words would be followed by the sound?
+
+"
+/subcaption = "Not clear at all                                                                                                                                                 Very Clear"
+/options = ("0       ", "1       ", "2       ", "3       ", "4       ", "5       ", "6         ", "7         ", "8         ", "9         ")     
+/responsefontstyle = ("Arial", 1.5%, false)
+/orientation = horizontal
+/ position = (15%, 40%)
+</radiobuttons>
+
+
+<surveypage belief>
+/ showpagenumbers = false
+/ questions = [1=bel]
+/ backbuttonposition = (120, 120)
+/ nextbuttonposition = (50%, 80%)
+/ showpagenumbers = false
+/ showquestionnumbers = false
+</surveypage>
+
+<radiobuttons bel>
+/ fontstyle = ("Arial", 2.3%, true)
+/ txcolor = black
+/ subcaptionfontstyle = ("Arial", 1.5%, false)
+/ caption ="How much did you believe those instructions?
+
+"
+/subcaption = "Not at all                                                                                                                                                     Strongly believed"
+/options = ("0       ", "1       ", "2       ", "3       ", "4       ", "5       ", "6         ", "7         ", "8         ", "9         ")     
+/responsefontstyle = ("Arial", 1.5%, false)
+/orientation = horizontal
+/ position = (15%, 40%)
+</radiobuttons>
+
+
+<surveypage US1eval>
+/ showpagenumbers = false
+/ questions = [1=US1]
+/ backbuttonposition = (120, 120)
+/ nextbuttonposition = (50%, 80%)
+/ showpagenumbers = false
+/ showquestionnumbers = false
+</surveypage>
+
+<radiobuttons US1>
+/ fontstyle = ("Arial", 2.3%, true)
+/ txcolor = black
+/ subcaptionfontstyle = ("Arial", 1.5%, false)
+/ caption ="How pleasant was the FIRST sound you listened to at the beginning of the study?
+
+"
+/subcaption = "Very unpleasant                                                                                                                                                            Very pleasant"
+/options = ("-5       ", "-4       ", "-3       ", "-2       ", "-1       ", "0       ", "1       ", "2       ", "3       ", "4       ", "5       ")     
+/responsefontstyle = ("Arial", 1.5%, false)
+/orientation = horizontal
+/ position = (15%, 40%)
+</radiobuttons>
+
+
+<surveypage US2eval>
+/ showpagenumbers = false
+/ questions = [1=US2]
+/ backbuttonposition = (120, 120)
+/ nextbuttonposition = (50%, 80%)
+/ showpagenumbers = false
+/ showquestionnumbers = false
+</surveypage>
+
+<radiobuttons US2>
+/ fontstyle = ("Arial", 2.3%, true)
+/ txcolor = black
+/ subcaptionfontstyle = ("Arial", 1.5%, false)
+/ caption ="How pleasant was the SECOND sound you listened to at the beginning of the study?
+
+"
+/subcaption = "Very unpleasant                                                                                                                                                            Very pleasant"
+/options = ("-5       ", "-4       ", "-3       ", "-2       ", "-1       ", "0       ", "1       ", "2       ", "3       ", "4       ", "5       ")     
+/responsefontstyle = ("Arial", 1.5%, false)
+/orientation = horizontal
+/ position = (15%, 40%)
+</radiobuttons>
+
+
+<survey memory2>
+/ pages = [1=inst_memory1; 2=inst_memory2]
+/ txcolor = Black
+/ fontstyle = ("Arial", 2.7%, true)
+/ showpagenumbers = false
+/ showquestionnumbers = false
+/ nextbuttonposition = (50%, 80%)
+/ backbuttonposition = (120%, 120%)
+</survey>
+
+<surveypage inst_memory1>
+/ caption = "
+
+Based on what you learned through the instructions, STRUAN was supposed to be...?"
+/ showpagenumbers = false
+/ questions = [1=memory1]
+</surveypage>
+
+<surveypage inst_memory2>
+/ caption = "
+
+Based on what you learned through the instructions, MORAG was supposed to be....?"
+/ showpagenumbers = false
+/ questions = [1=memory2]
+</surveypage>
+
+<radiobuttons memory1>
+/ fontstyle = ("Arial", 2%, true)
+/ txcolor = black
+/ subcaptionfontstyle = ("Arial", 2%, false)
+/options = ("Always followed by the FIRST sound", "9 times followed by the FIRST sound, once not followed by any sound", "8 times followed by the FIRST sound, twice not followed by any sound", "7 times followed by the FIRST sound, 3 times not followed by any sound", "6 times followed by the FIRST sound, 4 times not followed by any sound", "5 times followed by the FIRST sound, 5 times not followed by any sound", "4 times followed by the FIRST sound, 6 times not followed by any sound", "3 times followed by the FIRST sound, 7 times not followed by any sound", "Twice followed by the FIRST sound, 8 times not followed by any sound", "Once followed by the FIRST sound, 9 times not followed by any sound", "Never followed by the FIRST sound", "I don't remember")
+/ required = true
+/orientation = vertical
+/ position = (10%, 30%)
+</radiobuttons>
+
+<radiobuttons memory2>
+/ fontstyle = ("Arial", 2%, true)
+/ txcolor = black
+/ subcaptionfontstyle = ("Arial", 2%, false)
+/options = ("Always followed by the SECOND sound", "9 times followed by the SECOND sound, once not followed by any sound", "8 times followed by the SECOND sound, twice not followed by any sound", "7 times followed by the SECOND sound, 3 times not followed by any sound", "6 times followed by the SECOND sound, 4 times not followed by any sound", "5 times followed by the SECOND sound, 5 times not followed by any sound", "4 times followed by the SECOND sound, 6 times not followed by any sound", "3 times followed by the SECOND sound, 7 times not followed by any sound", "Twice followed by the SECOND sound, 8 times not followed by any sound", "Once followed by the SECOND sound, 9 times not followed by any sound", "Never followed by the SECOND sound", "I don't remember")
+/ required = true
+/orientation = vertical
+/ position = (10%, 30%)
+</radiobuttons>
+
+<survey expl>
+/ pages = [1=expl]
+/ txcolor = Black
+/ fontstyle = ("Arial", 2.7%, true)
+/ showpagenumbers = false
+/ showquestionnumbers = false
+/ nextbuttonposition = (50%, 80%)
+</survey>
+
+<surveypage expl>
+/ caption = 
+
+"
+You also did a task in which you categorized MORAG and STRUAN and good and bad words. When doing this task, people often try to make the task easier by referring to the non-words differently in their head. For instance, you might have used your knowledge about the non-words being paired with the sounds to more easily categorize those non-words with the same response key as positive and negative words (e.g., 'Morag is the non-word followed by the [adjective] sound'). 
+If so..."
+/ showpagenumbers = false
+/ questions = [1=expl1; 2=expl2]
+</surveypage>
+
+<textbox expl1>
+/ caption = "What word(s) did you use to refer to the sound told to be paired with STRUAN to help you link STRUAN with the positive or negative response?"
+/ fontstyle = ("Arial", 2%, false)
+/ textboxsize = (60, 10)
+/ multiline = true
+/ position = (10%, 35%)
+</textbox>
+
+<textbox expl2>
+/ caption = "What word(s) did you use to refer to the sound told to be paired with MORAG to help you link MORAG with the positive or negative response?"
+/ fontstyle = ("Arial", 2%, false)
+/ textboxsize = (60, 10)
+/ multiline = true
+/ position = (10%, 55%)
+</textbox>
+
+<page end>
+^^^^^^^^^THANK YOU FOR YOUR PARTICIPATION! PRESS THE SPACEBAR TO FINISH THE STUDY
+</page>
+
+<expt >
+/blocks = [1=exploratory; 2=memory2; 3= expl]
+/ postinstructions = (end)
+</expt>

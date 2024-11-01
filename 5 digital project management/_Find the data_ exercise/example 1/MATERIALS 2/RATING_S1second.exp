@@ -1,0 +1,275 @@
+<surveypage inst_conditioning>
+/ caption = "
+
+The presentation of the stimuli on screen will start now.
+
+Remember: MORAG and STRUAN will be presented on screen individually. 
+MORAG and STRUAN can be either followed or not followed by a sound. 
+
+IMPORTANT: between the offset of the words and the potential onset of the sound you will be asked to rate the words on three distinct dimensions"
+/ showpagenumbers = false
+/ backbuttonposition = (120, 120)
+</surveypage>
+
+<survey conditioning>
+/ pages = [1=conditioning]
+/ txcolor = Black
+/ fontstyle = ("Arial", 2.7%, true)
+/ showpagenumbers = false
+/ showquestionnumbers = false
+</survey>
+
+<surveypage conditioning>
+/ caption = 
+
+"
+
+
+Now is the ACTUAL TEST phase.
+
+
+In each occasion either MORAG or STRUAN will appear on the screen. 
+
+Each stimulus will appear indidually and will remain on screen for 4 seconds
+
+After that, the words can be either followed or not followed by the pleasant or unpleasant sounds.
+ 
+IMPORTANT: Immediately after the presentation of each word and before the potential onset of the sound you will be asked to answer some questions about MORAG and STRUAN."
+/ showpagenumbers = false
+/ backbuttonposition = (120, 120)
+</surveypage>
+
+<survey ratings1>
+/ pages = [1=Stimulus_1; 2=Stimulus_1_liking; 3=Stimulus_1_expect_neg; 4=Stimulus_1_expect_pos; 5=outcome2; 6=blank]
+/ txcolor = Black
+/ fontstyle = ("Arial", 2.7%, true)
+/ showpagenumbers = false
+/ showquestionnumbers = false
+</survey>
+
+<survey ratings2>
+/ pages = [1=Stimulus_2; 2=Stimulus_2_liking; 3=Stimulus_2_expect_neg; 4=Stimulus_2_expect_pos; 5=outcome2; 6=blank]
+/ txcolor = Black
+/ fontstyle = ("Arial", 2.7%, true)
+/ showpagenumbers = false
+/ showquestionnumbers = false
+</survey>
+
+<surveypage Stimulus_1>
+/ showpagenumbers = false
+/ stimulusframes = [1=stimulus1]
+/timeout = 4000
+/ nextbuttonposition = (120, 120)
+/ backbuttonposition = (120, 120)
+</surveypage>
+
+<surveypage outcome2>
+/ showpagenumbers = false
+/ stimulusframes = [1=outcome2]
+/timeout = 2000
+/ nextbuttonposition = (120, 120)
+/ backbuttonposition = (120, 120)
+</surveypage>
+
+<surveypage blank>
+/ showpagenumbers = false
+/ stimulusframes = [1=blank]
+/timeout = 2000
+/ nextbuttonposition = (120, 120)
+/ backbuttonposition = (120, 120)
+</surveypage>
+
+<surveypage Stimulus_2>
+/ showpagenumbers = false
+/ stimulusframes = [1=stimulus2]
+/timeout = 4000
+/ nextbuttonposition = (120, 120)
+/ backbuttonposition = (120, 120)
+</surveypage>
+
+<surveypage Stimulus_1_liking>
+/ showpagenumbers = false
+/ questions = [1=Liking_1]
+/ nextbuttonposition = (50%, 80%)
+/ backbuttonposition = (120, 120)
+</surveypage>
+
+<surveypage Stimulus_2_liking>
+/ showpagenumbers = false
+/ questions = [1=Liking_2]
+/ nextbuttonposition = (50%, 80%)
+/ backbuttonposition = (120, 120)
+</surveypage>
+
+<surveypage Stimulus_1_expect_neg>
+/ showpagenumbers = false
+/ questions = [1=expect_1_neg]
+/ nextbuttonposition = (50%, 80%)
+/ backbuttonposition = (120, 120)
+</surveypage>
+
+<surveypage Stimulus_1_expect_pos>
+/ showpagenumbers = false
+/ questions = [1=expect_1_pos]
+/ nextbuttonposition = (50%, 80%)
+/ backbuttonposition = (120, 120)
+</surveypage>
+
+<surveypage Stimulus_2_expect_neg>
+/ showpagenumbers = false
+/ questions = [1=expect_2_neg]
+/ nextbuttonposition = (50%, 80%)
+/ backbuttonposition = (120, 120)
+</surveypage>
+
+<surveypage Stimulus_2_expect_pos>
+/ showpagenumbers = false
+/ questions = [1=expect_2_pos]
+/ nextbuttonposition = (50%, 80%)
+/ backbuttonposition = (120, 120)
+</surveypage>
+
+<radiobuttons Liking_1>
+/ fontstyle = ("Arial", 2.5%, true)
+/ txcolor = black
+/ subcaptionfontstyle = ("Arial", 1.5%, false)
+/ caption ="                                        How much do you like this stimulus?
+
+                                 (-10 = Not at all / 0 = Neutral / 10 = Very much)
+"
+/options = ("-10", "-9", "-8", "-7", "-6", "-5", "-4", "-3", "-2", "-1","0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10")
+/responsefontstyle = ("Arial", 1.5%, false)
+/ required = true
+/orientation = horizontal
+/ position = (10%, 40%)
+</radiobuttons>
+
+<radiobuttons Liking_2>
+/ fontstyle = ("Arial", 2.5%, true)
+/ txcolor = black
+/ subcaptionfontstyle = ("Arial", 1.5%, false)
+/ caption ="                                        How much do you like this stimulus?
+
+                                 (-10 = Not at all / 0 = Neutral / 10 = Very much)
+"
+/options = ("-10", "-9", "-8", "-7", "-6", "-5", "-4", "-3", "-2", "-1","0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10")
+/responsefontstyle = ("Arial", 1.5%, false)
+/ required = true
+/orientation = horizontal
+/ position = (10%, 40%)
+</radiobuttons>
+
+<radiobuttons expect_1_neg>
+/ fontstyle = ("Arial", 2.5%, true)
+/ txcolor = black
+/ subcaptionfontstyle = ("Arial", 1.5%, false)
+/ caption ="   To what extent do you expect that the UNPLEASANT sound you listened to will occur?
+
+                   (1 = Not at all / 5 = Uncertain / 9 = Certainly)
+"
+/options = ("1             ", "2             ", "3             ", "4             ", "5             ", "6             ", "7             ", "8             ", "9             ")
+/ required = true
+/responsefontstyle = ("Arial", 1.5%, false)
+/orientation = horizontal
+/ position = (20%, 40%)
+</radiobuttons>
+
+
+<radiobuttons expect_1_pos>
+/ fontstyle = ("Arial", 2.5%, true)
+/ txcolor = black
+/ subcaptionfontstyle = ("Arial", 1.5%, false)
+/ caption ="   To what extent do you expect that the PLEASANT sound you listened to will occur?
+
+                   (1 = Not at all / 5 = Uncertain / 9 = Certainly)
+"
+/options = ("1             ", "2             ", "3             ", "4             ", "5             ", "6             ", "7             ", "8             ", "9             ")
+/ required = true
+/responsefontstyle = ("Arial", 1.5%, false)
+/orientation = horizontal
+/ position = (20%, 40%)
+</radiobuttons>
+
+
+<radiobuttons expect_2_neg>
+/ fontstyle = ("Arial", 2.5%, true)
+/ txcolor = black
+/ subcaptionfontstyle = ("Arial", 1.5%, false)
+/ caption ="   To what extent do you expect that the UNPLEASANT sound you listened to will occur?
+
+                   (1 = Not at all / 5 = Uncertain / 9 = Certainly)
+"
+/options = ("1             ", "2             ", "3             ", "4             ", "5             ", "6             ", "7             ", "8             ", "9             ")
+/ required = true
+/responsefontstyle = ("Arial", 1.5%, false)
+/orientation = horizontal
+/ position = (20%, 40%)
+</radiobuttons>
+
+<radiobuttons expect_2_pos>
+/ fontstyle = ("Arial", 2.5%, true)
+/ txcolor = black
+/ subcaptionfontstyle = ("Arial", 1.5%, false)
+/ caption ="   To what extent do you expect that the PLEASANT sound you listened to will occur?
+
+                   (1 = Not at all / 5 = Uncertain / 9 = Certainly)
+"
+/options = ("1             ", "2             ", "3             ", "4             ", "5             ", "6             ", "7             ", "8             ", "9             ")
+/ required = true
+/responsefontstyle = ("Arial", 1.5%, false)
+/orientation = horizontal
+/ position = (20%, 40%)
+</radiobuttons>
+
+
+<survey feedback>
+/ pages = [1=feedback]
+/ txcolor = Black
+/ fontstyle = ("Arial", 3.0%, true)
+/ showpagenumbers = false
+/ showquestionnumbers = false
+</survey>
+
+
+
+<surveypage feedback>
+/ caption = 
+
+"
+
+
+
+
+           THE CONDITION YOU WERE ASSIGNED TO INVOLVED 
+              ONLY ONE PRESENTATION OF THE TWO WORDS
+"
+/ showpagenumbers = false
+/ backbuttonposition = (120, 120)
+</surveypage>
+
+
+<picture stimulus1>
+/ items = ("MORAG.jpg")
+</picture>
+
+<picture stimulus2>
+/ items = ("STRUAN.jpg")
+</picture>
+
+
+
+<picture outcome>
+/ items = ("outcome.PNG")
+</picture>
+
+<picture outcome2>
+/ items = ("outcome2.PNG")
+</picture>
+
+<picture blank>
+/ items = ("blank.PNG")
+</picture>
+
+<expt >
+/blocks = [1=conditioning; 2=ratings2; 3=ratings1; 4=feedback]
+</expt>

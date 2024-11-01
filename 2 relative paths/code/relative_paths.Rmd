@@ -1,0 +1,51 @@
+
+# Introduction
+
+.R scripts use 'absolute paths': they specify the location of files based on their specific location in your computer's directory structure. This means that you have to use some mix of a) changing these absolute paths between computers or operating systems (e.g., "C:/users/ian/documents/manuscripts/whatever/" vs "~/documents/manuscripts/whatever/") and b) using `setwd()` to tell your R session where to start its search for files. Both of these are terrible for reproduciblity: the break between computers and operating systems.
+
+.Rmd (RMarkdown) and .qmd (Quarto) files instead use 'relative paths'. They specify locations to files relative to the directory that the .Rmd is in. 
+
+So, when data.csv is in the same directory as this practice_relative_paths.Rmd file, you can load it like this, without specifying `setwd()` or giving a full path to whereever this directory is on your computer:
+
+```{r}
+
+dat <- read.csv("data.csv") 
+
+```
+
+This is much more reproducible! You can give a set of folders to a colleague - ideally through a github repo - and it will work for the user regardless of their operating system or broader file structure.
+
+What if you don't want to put all your files in one folder? Use `/` to go "down" to lower directories, and `../` to go "up" to higher superordinate directories.
+
+# Practice relative paths
+
+If you're not sure where a file or directory lives, you can explore this manually using your file browser (Explorer on Windows, Finder on MacOS), or you can do it inside R.
+
+To practice using relative paths, move the data.csv file to another directory (e.g., in data/ or data/raw or data/processed, or another directory you create), then try to find it using the below functions (in combination with ".." and/or "/"), then load it from that location. Note that you can chain these to go up or down multiple levels (e.g., "../../" to go up two levels).
+
+```{r}
+
+# check if a directory exists
+dir.exists("plots")
+
+# you can create directories from R - you can even copy, move or delete files
+dir.create("plots")
+
+# recheck if a directory exists
+dir.exists("plots")
+
+# what files or directories are in a given directory
+list.files(".") # this dir
+list.files("..") # up one dir
+list.files("../data") # up one dir and then down into the data dir 
+list.files("../data/raw")
+
+# is a specific file in a given directory
+file.exists("../data/raw/data.csv")
+
+# read that file into the R environment
+dat <- read.csv("../data/raw/data.csv") 
+
+```
+
+

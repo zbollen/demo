@@ -1,0 +1,122 @@
+﻿***************************************************************************************
+***************************************************************************************
+			Demo for prolific
+***************************************************************************************
+**************************************************************************************
+***************************************************************************************
+Script Info
+
+Author: Simone Mattavelli (simone.mattavelli@unimib.it)
+***************************************************************************************
+***************************************************************************************
+
+*************************General Variables****************************
+**********************************************************************
+
+<defaults>
+/ canvassize = (1024px, 768px)
+/ windowsize = (1024px, 768px)
+/ screencolor = white
+/ txcolor = black
+/ fontstyle = ("Arial", 3%)
+/ inputdevice = mouse
+</defaults>
+
+<expt>
+/ blocks = [1 = begin]
+</expt>
+
+
+
+***** Demographics******************************
+************************************************
+
+<dropdown sex>
+/ caption = "Please indicate your gender"
+/ options = ("female", "male", " other")
+/ position = (10%, 25%)
+</dropdown>
+
+<textbox age>
+/ caption = "Please indicate your age"
+/ mask = positiveinteger
+/ range = (7, 110)
+/ position = (10%, 35%)
+</textbox>
+
+<textbox ProlificCode>
+/ caption = " Please enter your prolific ID here 
+(if you do not have it please retrieve it now. Otherwise you cannot be paid.)"
+/ position = (10%,10%)
+/ textboxsize = (20, 10)
+/ position = (10%, 45%)
+/ multiline = true
+</textbox>
+
+<surveypage demographics>
+/ caption = "Please answer the following demographic questions"
+/ fontstyle = ("Verdana", 1.6%, true, false, false, false, 5, 0)
+/ questions = [1=sex; 2=age; 3=ProlificCode] 
+</surveypage>
+
+<survey demographics>
+/ pages = [1=demographics]
+/ responsefontstyle = ("Verdana", 1.2%, false, false, false, false, 5, 0)
+/ itemfontstyle = ("Verdana", 1.2%, false, false, false, false, 5, 0)
+/ itemspacing = 2%
+/ showpagenumbers = false
+</survey>
+
+
+**********  block  **********
+
+<block begin>
+/ preinstructions = (WelcomeInstructions)
+/ screencolor = White
+/ trials = [1 = demographics]
+</block>
+
+**********  Instructions  *************
+
+<instruct>  
+/ fontstyle = ("Courier New", 3%)
+/ inputdevice = keyboard
+/ nextkey = (" ")
+/ lastlabel = "Press the spacebar to continue"
+/ prevlabel = "Press the 't' key to go back"
+/ prevkey = ("t")
+</instruct>
+
+<page WelcomeInstructions>
+
+Welcome to this experiment.^^
+
+Before you start, please:^^
+- Put your HEADPHONES on^^
+- SET THE VOLUME of your computer at a level of 30%.^^
+- maximize your browser window^^
+- switch off phone/e-mail/music & anything else distracting^^
+- please have your Prolific ID ready [It can be found in your account info]^^
+</page>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

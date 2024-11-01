@@ -1,0 +1,19 @@
+subject and session info columns,,,,,task structure columns,,,,,,,,response columns,,,
+,,,,,,,,,,,,,,,,
+date,time,group,subject,session,build,blocknum,trial number,block code,pretrialpause,posttrialpause,trialduration,trialtimeout,trial code,!! Key response,correct,4*latency
+23.06.22,10:46:30,865687204,548957868,1,06.06.00,1,2,demographics,0,0,0,0,age,23,1,1372
+23.06.22,10:46:30,865687204,548957868,1,06.06.00,1,3,demographics,0,0,0,0,gender,female,1,619
+23.06.22,10:46:30,865687204,548957868,1,06.06.00,1,2,demographics,0,0,0,0,psychiatric diagnosis,schizophrenia,1,1372
+23.06.22,10:46:30,865687204,548957868,1,06.06.00,1,3,demographics,0,0,0,0,prolific ID,asldkjaao87809,1,619
+23.06.22,11:54:55,631118150,504546409,1,06.06.00,1,2,demographics,0,0,0,0,age,48,1,3946
+23.06.22,11:54:55,631118150,504546409,1,06.06.00,1,3,demographics,0,0,0,0,gender,yes,1,3724
+23.06.22,11:54:55,631118150,504546409,1,06.06.00,1,2,demographics,0,0,0,0,psychiatric diagnosis,OCD,1,3946
+23.06.22,11:54:55,631118150,504546409,1,06.06.00,1,3,demographics,0,0,0,0,prolific ID,ad;oi98732paisdh,1,3724
+23.06.22,12:23:32,569179372,994692692,1,06.06.00,1,2,demographics,0,0,0,0,age,21,1,2576
+23.06.22,12:23:32,569179372,994692692,1,06.06.00,1,3,demographics,0,0,0,0,gender,female,1,3050
+23.06.22,12:23:32,569179372,994692692,1,06.06.00,1,2,demographics,0,0,0,0,psychiatric diagnosis,schizophrenia,1,2576
+23.06.22,12:23:32,569179372,994692692,1,06.06.00,1,3,demographics,0,0,0,0,prolific ID,1023984cao982738,1,3050
+23.06.22,12:27:58,318655233,246532124,1,06.06.00,1,2,demographics,0,0,0,0,age,999,1,4311
+23.06.22,12:27:58,318655233,246532124,1,06.06.00,1,3,demographics,0,0,0,0,gender,Male,1,2793
+23.06.22,12:32:30,318655233,246532124,1,06.06.00,1,2,demographics,0,0,0,0,psychiatric diagnosis,GAD,1,6887
+23.06.22,12:32:30,318655233,246532124,1,06.06.00,1,2,demographics,0,0,0,0,prolific ID,2982879q8w7r,1,6887

@@ -1,0 +1,273 @@
+---
+title: "Practicing joins"
+author: "Template: Ian Hussey; content: [Student name]"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    code_folding: hide
+    highlight: haddock
+    theme: flatly
+    toc: yes
+    toc_float: yes
+---
+
+```{r, include=FALSE}
+
+knitr::opts_chunk$set(message = FALSE,
+                      warning = FALSE)
+
+```
+
+# Dependencies
+
+```{r}
+
+library(dplyr)
+library(readr)
+
+```
+
+# Get data
+
+```{r}
+
+data_unique_id_subset <- read_csv("../data/raw/data_unique_id_subset.csv")
+data_age_gender_subset <- read_csv("../data/raw/data_age_gender_subset.csv")
+data_amp_summary_subset <- read_csv("../data/raw/data_amp_summary_subset.csv")
+data_selfreport_summary_subset <- read_csv("../data/raw/data_selfreport_summary_subset.csv")
+
+nrow(data_unique_id_subset)
+nrow(data_age_gender_subset)
+nrow(data_amp_summary_subset)
+nrow(data_selfreport_summary_subset)
+
+```
+
+# Practicing joins
+
+Using the data frames below and functions from the _join family, write code to do the following joins.  
+
+## Practice 1
+
+create 'data_combined' by joining data_amp_summary_subset and data_age_gender_subset so that unique_ids in either data frame are retained. which join is this? implement it. 
+
+```{r}
+
+# data_combined <- 
+
+```
+
+## Practice 2
+
+create 'data_self_reports_and_their_amp_data' by joining data_selfreport_summary_subset and data_amp_summary_subset so that all participants have self-report data, + AMP data if available. which join is this? implement it. 
+
+```{r}
+
+data_self_reports_and_their_amp_data <-
+  left_join(data_selfreport_summary_subset,
+            data_amp_summary_subset,
+            by = "unique_id")
+
+
+temp <- data_selfreport_summary_subset |>
+  mutate(unique_id = ifelse(unique_id == 752580117, NA, unique_id))
+
+data_self_reports_and_their_amp_data <-
+  left_join(temp,
+            data_amp_summary_subset,
+            by = "unique_id")
+
+```
+
+## Practice 3
+
+do the opposite: create 'data_amp_data_and_their_self_reports' by joining data_amp_summary_subset and data_selfreport_summary_subset so that all participants have AMP data, + self-report data if available. which join is this? implement it. 
+
+```{r}
+
+# data_amp_data_and_their_self_reports <- 
+
+```
+
+## Practice 4
+
+create data_combined_2 by joining 'data_combined' and data_selfreport_summary_subset only unique_ids already present in data_combined are retained. which join is this? implement it. 
+
+```{r}
+
+# data_combined_2 <- 
+
+```
+
+## Practice 5
+
+create 'data_missing_ids' which should list the unique_ids are missing from data_unique_id_subset but are present in at least one of data_age_gender_subset, data_amp_summary_subset, and data_selfreport_summary_subset. This will require two different joins. Which? Implement them.
+
+```{r}
+
+# data_missing_ids <- 
+
+combined_ids <- data_age_gender_subset %>%
+  full_join(data_amp_summary_subset, by = "unique_id") %>% 
+  full_join(data_selfreport_summary_subset, by = "unique_id")
+
+data_missing_ids <- combined_ids %>%
+  anti_join(data_unique_id_subset, by = "unique_id") %>% 
+  select(unique_id) %>% 
+  #distinct(unique_id)
+  count(unique_id)
+
+```
+
+### Practice 6
+
+Create 'data_combined_all' by joining data_age_gender_subset, data_amp_summary_subset, and data_selfreport_summary_subset such that all unique_ids from all data frames are retained. What kind of join is this? Implement it.
+
+```{r}
+
+# Solution
+# This is a full join.
+
+data_combined_all <- 
+  full_join(data_age_gender_subset, 
+            data_amp_summary_subset, 
+            by = "unique_id") %>%
+  full_join(data_selfreport_summary_subset, by = "unique_id")
+
+```
+
+### Practice 7
+
+Create 'data_combined_age_and_self_reports' by joining data_age_summary_subset and data_selfreport_summary_subset so that all unique_ids from data_selfreport_summary_subset are retained, and the matching age data is included if available. What kind of join is this? Implement it.
+
+```{r}
+
+# Solution
+# This is a left join.
+
+data_combined_age_and_self_reports <- 
+  left_join(data_selfreport_summary_subset, 
+            data_age_gender_subset, 
+            by = "unique_id")
+
+```
+
+### Practice 8
+
+Create 'data_amp_only' by performing an anti join of data_amp_summary_subset with data_selfreport_summary_subset to find participants who have AMP data but no self-report data. Implement the join.
+
+```{r}
+
+# Solution
+# This is an anti join.
+
+data_amp_only <- 
+  anti_join(data_amp_summary_subset, 
+            data_selfreport_summary_subset, 
+            by = "unique_id")
+
+```
+
+### Practice 9
+
+You have two data frames: data_february_subset and data_march_subset. Create 'data_february_and_march' by joining them such that all unique_ids from data_february_subset are retained, even if they do not have corresponding data in data_march_subset. What kind of join is this? Implement it.
+
+```{r}
+
+# Solution
+# This is an anti join.
+
+data_selfreport_exclusive <- 
+  anti_join(data_selfreport_summary_subset, 
+            data_age_gender_subset, 
+            by = "unique_id")
+
+```
+
+### Practice 10
+
+Find the unique_ids that are present in both data_selfreport_summary_subset and data_amp_summary_subset. Create 'data_shared_ids' that contains only these common unique_ids. What kind of join is this? Implement it.
+
+```{r}
+
+# Solution
+# This is a semi join.
+
+data_shared_ids <- 
+  semi_join(data_selfreport_summary_subset, 
+            data_amp_summary_subset, 
+            by = "unique_id")
+
+```
+
+
+### Practice 13
+
+You have two data frames, data_orders and data_customers. Create 'data_customer_orders' by joining these two data frames such that all order information is retained along with matching customer details. What kind of join is this? Implement it.
+
+```{r}
+
+# Define data frames
+data_orders <- data.frame(
+  customer_id = c(101, 102, 103, 104, 105),
+  order_date = as.Date(c('2024-01-01', '2024-01-05', '2024-01-07', '2024-01-10', '2024-01-15')),
+  order_amount = c(250, 300, 150, 400, 500)
+)
+
+data_customers <- data.frame(
+  customer_id = c(101, 102, 103, 106),
+  order_date = as.Date(c('2024-01-01', '2024-01-05', '2024-01-07', '2024-01-12')),
+  customer_name = c("Alice", "Bob", "Charlie", "Diana")
+)
+
+# Solution
+# This is a left join.
+
+data_customer_orders <- 
+  left_join(data_orders, 
+            data_customers, 
+            by = c("customer_id", "order_date"))
+
+```
+
+### Practice 14
+
+You have two datasets, df_outcome_1 and df_outcome_2. df_outcome_1 contains item-level data for one outcome measure, which is a 50-item scale, as well as the condition (intervention vs control). df_outcome_2 contains only the other outcome measure, which is a different 50-item scale. 
+
+Imagine you want to be able to compare scores on outcome measure 2 between the two conditions. You therefore need to join df_outcome_1 and df_outcome_2. Doing this incorrectly can greatly and inappropriately increase the number of rows in the dataset. Doing it correctly should keep the number of rows at 500. Implement it correctly and incorrectly, to illustrate a) the risks of using full_join and b) a correct alternative. You may need to use functions other than join. 
+
+```{r}
+
+# define data
+df_outcome_1 <- 
+  data.frame(participant = rep(seq(from = 1, to = 10), times = 50),
+             outcome_measure_1 = rnorm(n = 500, mean = 0, sd = 1)) |>
+  arrange(participant) %>%
+  mutate(condition = c(rep("intervention", times = 250), rep("control", times = 250)))
+
+df_outcome_2 <- 
+  data.frame(participant = rep(seq(from = 1, to = 10), times = 50),
+             outcome_measure_2 = rnorm(n = 500, mean = 0, sd = 1)) |>
+  arrange(participant) 
+
+# join incorrectly
+df_outcomes_combined_wrong <- 
+  full_join(df_outcome_1,
+            df_outcome_2,
+            by = "participant")
+
+nrow(df_outcomes_combined_wrong)
+
+# use distinct() to reduce one dataset to what is necessary, and then join
+df_outcomes_combined_correct <- df_outcome_1 %>%
+  distinct(participant, condition) %>%
+  left_join(df_outcome_2,
+            by = "participant")
+
+nrow(df_outcomes_combined_correct)
+
+```
+
+Notice the warning message: "Warning: Detected an unexpected many-to-many relationship between `x` and `y`."
+
+

@@ -1,0 +1,1274 @@
+
+
+# IAT: Scoring algorithm - version 0.1
+# 
+# Based on : Understanding and Using the Implicit Assocition Test: I. An Improved Scoring algorithm,
+# Greenwald et al., Journal of Personality and Social Psychology,85,(2), 197-216., 2003
+#
+
+# example
+
+#FILENAME = "test1.sav"
+#VAR = c(1,2,3,4,5)
+#exclude= c(1)
+#lower.bound = 0
+#OUTNAME = "test1"
+
+
+# Read_IAT_Data
+#
+#
+#
+#
+#FILENAME = "example.sav"
+#VAR = c(1,2,3,4,5)
+# V1 = subject
+# V2 = blocknum: with B3 = 3, B4 = 4, B6 = 6, B7 = 7 (see Greenwald, 2003)
+# V3 = trialnum
+# V4 = correct: 0 or 1, with 0 = error, 1 = correct - use dummy!
+# V5 = latency
+#
+# Optional
+# V6 = congruency
+#
+
+#FILENAME = "example.sav"
+#VAR = c(1,2,3,4,5)
+# V1 = subject
+# V2 = blocknum: with B3 = 3, B4 = 4, B6 = 6, B7 = 7 (see Greenwald, 2003)
+# V3 = trialnum
+# V4 = correct: 0 or 1, with 0 = error, 1 = correct - use dummy!
+# V5 = latency
+#
+# Optional
+# V6 = congruency
+#
+
+# require("foreign")
+# options(warn=-1)
+# Data <- read.spss(filename, use.value.labels = FALSE, to.data.frame=TRUE)
+# 
+# 
+# VAR = c(1,2,3,4,5)
+# exclude= c(1)
+# lower.bound = 0
+# 
+# source("http://users.ugent.be/~mldschry/R/IAT/doIAT.R")
+# source("doIATv2.R")
+# out <- IAT(Data, VAR, exclude, lower.bound)
+# 
+# summary(out)
+# 
+# out$score # The entire result data file
+# out$score$D1 # The D1-scores for all participants
+# out$score$D4_M6 # Estimated means of block 3 - calculated for D4
+# 
+# plot(out, d="D4", ID=TRUE, error=TRUE)
+# 
+# write.table(out$score,file="out1.csv",row.names=FALSE,sep=";",dec=",",na="")
+# 
+
+
+plot.iat <- function(object,d,ID=TRUE, error=TRUE){
+    d <- d
+    if(d=="D1"){x <- object$score$D1}
+    if(d=="D2"){x <- object$score$D2}
+    if(d=="D3"){x <- object$score$D3}
+    if(d=="D4"){x <- object$score$D4}
+    if(d=="D5"){x <- object$score$D5}
+    if(d=="D6"){x <- object$score$D6}
+    if(d=="L1"){x <- object$score$L1}
+    if(d=="L1c"){x <- object$score$L1c}
+    if(d=="L2"){x <- object$score$L2}
+    if(d=="L2c"){x <- object$score$L2c}
+    mn <- paste("IAT: ",d,"-measure", sep="")
+    plot(x,ylim=c(-2,2), pch="", main=mn, xlab="Subject ID",ylab=d,xaxt="n")
+    ns <- length(x)
+    coln <- c()
+    for(i in 1:ns){
+        if(abs(x[i]) < 0.25){o = 5}
+        if(abs(x[i]) >= 0.25 & abs(x[i]) < 0.50){o = 4}
+        if(abs(x[i]) >= 0.50 & abs(x[i]) < 0.75){o = 3}
+        if(abs(x[i]) >= 0.75 & abs(x[i]) < 1.00){o = 2}
+        if(abs(x[i]) > 1.00){o = 1}
+        coln <- c(coln,heat.colors(5)[o])
+    }
+    
+    for(i in 1:ns){
+        abline(v=i,lty=2,col="lightgrey")
+        }
+    
+    abline(h=-1.00, lty=2, col="lightgrey")
+    abline(h=-0.50, lty=2, col="lightgrey")
+    abline(h=0, lty=2, col="lightgrey")
+    abline(h=0.50, lty=2, col="lightgrey")
+    abline(h=1.00, lty=2, col="lightgrey")    
+    points(x,col=coln,pch=16,cex=1.5)
+    if(ID==TRUE){
+    text(1:ns,x+0.1,paste(object$score$Subject))}
+    
+
+    if(error==TRUE){
+        er <- c(grep("er", names(object$score)),grep(d, names(object$score)))
+        ider <- which(duplicated(er)==TRUE)
+        er <- er[ider]
+        mean.er <- apply(object$score[,er],1,mean, na.rm=TRUE)
+        for(i in 1:ns){
+            segments(i,-1.9, i, -1.9+mean.er[i],lwd=3)
+        }
+                
+        text(1:ns,-2,paste(round(mean.er*100)),cex=0.5)}
+    
+    
+}
+
+summary.iat <- function(object){
+    cat("\n\n")
+    cat("Overview IAT", "\n\n")
+    
+    cat("Eliminate subjects (10pct of trials less then 300ms):", object$eliminate, "\n\n")
+    
+    cat("Correlation Matrix:\n\n")
+    CM <- object$cor
+    print(round(CM,3))
+    cat("\n\n")
+    cat("IAT Measures:","\n\n")
+    X <- object$score[,c(14,27,40,53,66,79,84,89,98,107)]
+    names(X) <- c("D1","D2","D3","D4","D5","D6","L1","L1c","L2","L2c")
+    print(head(round(X,3)))
+    cat("\n\n")
+    cat("warning: check congruency!","\n\n")    
+    
+}
+
+
+
+IAT <- function(data=Data, VAR=VAR, exclude=exclude, lower.bound = lower.bound){
+    
+    Data <- data[,VAR]
+    
+    # without congruency
+    if(dim(Data)[2]==5){
+        var.names <- c(
+            "subject",
+            "blocknum",
+            "trialnum",
+            "correct",
+            "latency"
+        )
+        names(Data) <- var.names
+    }
+    
+    # with congruency
+    if(dim(Data)[2]==6){
+        var.names <- c(
+            "subject",
+            "blocknum",
+            "trialnum",
+            "correct",
+            "latency",
+            "congruency")
+        names(Data) <- var.names
+    }
+    
+    
+    old.subject.nrs <- unique(Data$subject)
+    N.subj <- length(old.subject.nrs)
+    for(i in 1:N.subj){
+        id <- which(Data$subject==sort(old.subject.nrs)[i])
+        Data$subject[id] <- i
+    }
+        
+    out1 = D1f(Data,exclude=exclude)
+    out2 = D2f(Data,exclude=exclude)
+    out3 = D3f(Data,exclude=exclude)    
+    out4 = D4f(Data,exclude=exclude)
+    out5 = D5f(Data,exclude=exclude)    
+    out6 = D6f(Data,exclude=exclude)
+    outl1 = L1f(Data,exclude=exclude)
+    outl1c = L1cf(Data,exclude=exclude)
+    outl2 = L2f(Data,exclude=exclude)
+    outl2c = L2cf(Data,exclude=exclude)
+    
+    output1 <- data.frame(cbind(out1$M3,out1$M4,out1$M6,out1$M7,out1$SD36,out1$SD47,out1$er3,out1$er4,out1$er6,out1$er7,out1$D63,out1$D74,out1$D))
+    names(output1) <- c("D1_M3", "D1_M4","D1_M6","D1_M7","D1_SD36","D1_SD47","D1_er3","D1_er4","D1_er6","D1_er7","D1_D63","D1_D74","D1")
+    output2 <- data.frame(cbind(out2$M3,out2$M4,out2$M6,out2$M7,out2$SD36,out2$SD47,out2$er3,out2$er4,out2$er6,out2$er7,out2$D63,out2$D74,out2$D))
+    names(output2) <- c("D2_M3", "D2_M4","D2_M6","D2_M7","D2_SD36","D2_SD47","D2_er3","D2_er4","D2_er6","D2_er7","D2_D63","D2_D74","D2")
+    output3 <- data.frame(cbind(out3$M3,out3$M4,out3$M6,out3$M7,out3$SD36,out3$SD47,out1$er3,out1$er4,out1$er6,out1$er7,out3$D63,out3$D74,out3$D))
+    names(output3) <- c("D3_M3", "D3_M4","D3_M6","D3_M7","D3_SD36","D3_SD47","D3_er3","D3_er4","D3_er6","D3_er7","D3_D63","D3_D74","D3")
+    output4 <- data.frame(cbind(out4$M3,out4$M4,out4$M6,out4$M7,out4$SD36,out4$SD47,out4$er3,out4$er4,out4$er6,out4$er7,out4$D63,out4$D74,out4$D))
+    names(output4) <- c("D4_M3", "D4_M4","D4_M6","D4_M7","D4_SD36","D4_SD47","D4_er3","D4_er4","D4_er6","D4_er7","D4_D63","D4_D74","D4")
+    output5 <- data.frame(cbind(out5$M3,out5$M4,out5$M6,out5$M7,out5$SD36,out5$SD47,out2$er3,out2$er4,out2$er6,out2$er7,out5$D63,out5$D74,out5$D))
+    names(output5) <- c("D5_M3", "D5_M4","D5_M6","D5_M7","D5_SD36","D5_SD47","D5_er3","D5_er4","D5_er6","D5_er7","D5_D63","D5_D74","D5")
+    output6 <- data.frame(cbind(out6$M3,out6$M4,out6$M6,out6$M7,out6$SD36,out6$SD47,out6$er3,out6$er4,out6$er6,out6$er7,out6$D63,out6$D74,out6$D))
+    names(output6) <- c("D6_M3", "D6_M4","D6_M6","D6_M7","D6_SD36","D6_SD47","D6_er3","D6_er4","D6_er6","D6_er7","D6_D63","D6_D74","D6")
+    outputl1 <- data.frame(cbind(outl1$log4,outl1$log7,out1$er4,out1$er7,outl1$log47))
+    names(outputl1) <- c("L1_log4", "L1_log7","L1_er4","L1_er7","L1")    
+    outputl1c <- data.frame(cbind(outl1c$log4,outl1c$log7,out1$er4,out1$er7,outl1c$log47))
+    names(outputl1c) <- c("L1c_log4", "L1c_log7","L1c_er4","L1c_er7","L1c")    
+    
+    outputl2 <- data.frame(cbind(outl2$log3,outl2$log4,outl2$log6,outl2$log7,out1$er3,out1$er4,out1$er6,out1$er7,outl2$log3467))
+    names(outputl2) <- c("L2_log3", "L2_log4","L2_log6", "L2_log7","L2_er3","L2_er4","L2_er4","L2_er7","L2")    
+    outputl2c <- data.frame(cbind(outl2c$log3,outl2c$log4,outl2c$log6,outl2c$log7,out1$er3,out1$er4,out1$er6,out1$er7,outl2c$log3467))
+    names(outputl2c) <- c("L2c_log3", "L2c_log4","L2c_log6", "L2c_log7","L2c_er3","L2c_er4","L2c_er4","L2c_er7","L2c")
+    
+    output <- round(data.frame(cbind(old.subject.nrs,output1,output2,output3,output4,output5,output6,outputl1,outputl1c,outputl2,outputl2c)),4)
+    names(output)[1] <- "Subject"
+    
+    #output
+   
+    
+    if(length(out1$Remove) == 0){subout <- paste("None")}
+    if(length(out1$Remove) > 0){subout <- old.subject.nrs[out1$Remove]}
+    
+
+    CMdat <- with(output,data.frame(D1,D2,D3,D4,D5,D6,L1,L1c,L2,L2c))
+    names(CMdat) <- c("D1","D2","D3","D4","D5","D6","L1","L1c","L2","L2c")
+    CM <- cor(CMdat)
+    
+    out <- list(score=output, eliminate=subout, cor=CM)
+    class(out) <- "iat"
+    out
+
+}
+
+
+
+D1f <- function(Data,exclude=exclude){
+    
+    N.subj <- length(unique(Data$subject))
+    lower.bound = 0
+    
+    # select blocks
+    Blocknrs <- c(3,4,6,7)
+    
+    N.blocks <- length(Blocknrs)
+    trials <- c()
+    
+    for(i in 1:N.blocks){
+        trials <- c(trials,which(Data$blocknum==Blocknrs[i]))
+    }
+    Data <- Data[trials,]
+    
+    exclude.trials <- exclude
+    rem.trials <- c()
+    
+    # remove certain trials
+    rem.trials <- unique(c(rem.trials,exclude.trials))
+    
+    if(length(rem.trials> 0)){
+        for(i in 1:length(rem.trials)){
+            na.trial <- which(Data$trialnum==rem.trials[i])
+            Data <- Data[-na.trial,]
+        }
+    }
+    
+    # save raw data
+    
+    Data.old <- Data
+    
+    # Remove Subjects with 10% trials < 300ms
+    
+    pct300 <- numeric(N.subj)
+    for(i in 1:N.subj){
+        sub <- which(Data$subject==i)
+        pct300[i] <- length(which(Data$latency[sub] < 300))/length(Data$latency[sub])
+    }
+    
+    rem.subj <- which(pct300 > 0.1) # later wegdoen...
+    
+    
+    L.10000 <- which(Data$latency > 10000)
+    if(length(L.10000 > 0)){Data <- Data[-c(L.10000),]}
+    L.low<- which(Data$latency < lower.bound)
+    if(length(L.low > 0)){Data <- Data[-c(L.low),]}
+    
+    old.latency <- Data$latency
+    sd_36 <- c()    
+    sd_47 <- c()    
+    m_3 <- c()
+    m_4 <- c()
+    m_6 <- c()
+    m_7 <- c()
+    
+    er3 <- c()
+    er4 <- c()
+    er6 <- c()
+    er7 <- c()
+    
+    
+    for(i in 1:N.subj){
+        id <- which(Data$subject==i)
+        tmp <- Data[id,]
+        id.er <- which(tmp$correct==0 | tmp$correct=="error")   # error 
+        id.co <- which(tmp$correct==1 | tmp$correct=="correct")   # correct
+        
+        b3 <- which(tmp$blocknum==3)
+        b4 <- which(tmp$blocknum==4)
+        b6 <- which(tmp$blocknum==6)
+        b7 <- which(tmp$blocknum==7)
+        
+        b36 <- c(b3,b6)
+        b47 <- c(b4,b7)   
+        
+        sd_36 <- c(sd_36,sd(tmp$latency[b36],na.rm=TRUE))
+        sd_47 <- c(sd_47,sd(tmp$latency[b47],na.rm=TRUE))
+        
+        m_3 <- c(m_3,mean(tmp$latency[b3],na.rm=TRUE))
+        m_4 <- c(m_4,mean(tmp$latency[b4],na.rm=TRUE))
+        m_6 <- c(m_6,mean(tmp$latency[b6],na.rm=TRUE))
+        m_7 <- c(m_7,mean(tmp$latency[b7],na.rm=TRUE))
+        
+        tmp$latency[id.er] <- NA
+        
+        er3 <- c(er3,length(which(is.na(tmp$latency[b3])==TRUE))/length(b3))
+        er4 <- c(er4,length(which(is.na(tmp$latency[b4])==TRUE))/length(b4))
+        er6 <- c(er6,length(which(is.na(tmp$latency[b6])==TRUE))/length(b6))
+        er7 <- c(er7,length(which(is.na(tmp$latency[b7])==TRUE))/length(b7))
+        
+        
+        #Data[id,] <- tmp
+    }
+    
+    M63 <- m_6 - m_3    
+    M74 <- m_7 - m_4
+    
+    D1 <- M63/sd_36
+    D2 <- M74/sd_47
+    
+    D <- (D1+D2)/2
+    
+    out.d1 <- list(D63 = D1, D74 = D2, D=D,M3 = m_3,M4 = m_4,M6 = m_6,M7 = m_7,SD36=sd_36,SD47=sd_47, Remove=rem.subj,er3=er3,er4=er4,er6=er6,er7=er7)
+    out.d1
+}
+
+
+D2f <- function(Data,exclude=exclude){
+    
+    N.subj <- length(unique(Data$subject))
+    lower.bound = 400
+    
+    # select blocks
+    Blocknrs <- c(3,4,6,7)
+    
+    N.blocks <- length(Blocknrs)
+    trials <- c()
+    
+    for(i in 1:N.blocks){
+        trials <- c(trials,which(Data$blocknum==Blocknrs[i]))
+    }
+    Data <- Data[trials,]
+    
+    exclude.trials <- exclude
+    rem.trials <- c()
+    
+    # remove certain trials
+    rem.trials <- unique(c(rem.trials,exclude.trials))
+    
+    if(length(rem.trials> 0)){
+        for(i in 1:length(rem.trials)){
+            na.trial <- which(Data$trialnum==rem.trials[i])
+            Data <- Data[-na.trial,]
+        }
+    }
+    
+    # save raw data
+    
+    Data.old <- Data
+    
+    # Remove Subjects with 10% trials < 300ms
+    
+    pct300 <- numeric(N.subj)
+    for(i in 1:N.subj){
+        sub <- which(Data$subject==i)
+        pct300[i] <- length(which(Data$latency[sub] < 300))/length(Data$latency[sub])
+    }
+    
+    rem.subj <- which(pct300 > 0.1) # later wegdoen...
+    
+    
+    L.10000 <- which(Data$latency > 10000)
+    if(length(L.10000 > 0)){Data <- Data[-c(L.10000),]}
+    L.low<- which(Data$latency < lower.bound)
+    if(length(L.low > 0)){Data <- Data[-c(L.low),]}
+    
+    old.latency <- Data$latency
+    sd_36 <- c()    
+    sd_47 <- c()    
+    m_3 <- c()
+    m_4 <- c()
+    m_6 <- c()
+    m_7 <- c()
+    
+    er3 <- c()
+    er4 <- c()
+    er6 <- c()
+    er7 <- c()
+    
+    
+    for(i in 1:N.subj){
+        id <- which(Data$subject==i)
+        tmp <- Data[id,]
+        id.er <- which(tmp$correct==0 | tmp$correct=="error")   # error 
+        id.co <- which(tmp$correct==1 | tmp$correct=="correct")   # correct
+        
+        b3 <- which(tmp$blocknum==3)
+        b4 <- which(tmp$blocknum==4)
+        b6 <- which(tmp$blocknum==6)
+        b7 <- which(tmp$blocknum==7)
+        
+        b36 <- c(b3,b6)
+        b47 <- c(b4,b7)   
+        
+        sd_36 <- c(sd_36,sd(tmp$latency[b36],na.rm=TRUE))
+        sd_47 <- c(sd_47,sd(tmp$latency[b47],na.rm=TRUE))
+        
+        m_3 <- c(m_3,mean(tmp$latency[b3],na.rm=TRUE))
+        m_4 <- c(m_4,mean(tmp$latency[b4],na.rm=TRUE))
+        m_6 <- c(m_6,mean(tmp$latency[b6],na.rm=TRUE))
+        m_7 <- c(m_7,mean(tmp$latency[b7],na.rm=TRUE))
+        
+        tmp$latency[id.er] <- NA
+        
+        er3 <- c(er3,length(which(is.na(tmp$latency[b3])==TRUE))/length(b3))
+        er4 <- c(er4,length(which(is.na(tmp$latency[b4])==TRUE))/length(b4))
+        er6 <- c(er6,length(which(is.na(tmp$latency[b6])==TRUE))/length(b6))
+        er7 <- c(er7,length(which(is.na(tmp$latency[b7])==TRUE))/length(b7))
+        
+        
+        #Data[id,] <- tmp
+    }
+    
+    M63 <- m_6 - m_3    
+    M74 <- m_7 - m_4
+    
+    D1 <- M63/sd_36
+    D2 <- M74/sd_47
+    
+    D <- (D1+D2)/2
+    
+    out.d2 <- list(D63 = D1, D74 = D2, D=D,M3 = m_3,M4 = m_4,M6 = m_6,M7 = m_7,SD36=sd_36,SD47=sd_47, Remove=rem.subj,er3=er3,er4=er4,er6=er6,er7=er7)
+    out.d2
+}
+
+
+D3f <- function(Data=Data, exclude=exclude){
+    
+    N.subj <- length(unique(Data$subject))
+    lower.bound = 0
+    
+    # select blocks
+    Blocknrs <- c(3,4,6,7)
+    
+    N.blocks <- length(Blocknrs)
+    trials <- c()
+    
+    for(i in 1:N.blocks){
+        trials <- c(trials,which(Data$blocknum==Blocknrs[i]))
+    }
+    Data <- Data[trials,]
+    
+    exclude.trials <- exclude
+    rem.trials <- c()
+    
+    # remove certain trials
+    rem.trials <- unique(c(rem.trials,exclude.trials))
+    
+    if(length(rem.trials> 0)){
+        for(i in 1:length(rem.trials)){
+            na.trial <- which(Data$trialnum==rem.trials[i])
+            Data <- Data[-na.trial,]
+        }
+    }
+    
+    # save raw data
+    
+    Data.old <- Data
+    
+    # Remove Subjects with 10% trials < 300ms
+    
+    pct300 <- numeric(N.subj)
+    for(i in 1:N.subj){
+        sub <- which(Data$subject==i)
+        pct300[i] <- length(which(Data$latency[sub] < 300))/length(Data$latency[sub])
+    }
+    
+    rem.subj <- which(pct300 > 0.1) # later wegdoen...
+    
+    
+    L.10000 <- which(Data$latency > 10000)
+    if(length(L.10000 > 0)){Data <- Data[-c(L.10000),]}
+    L.low<- which(Data$latency < lower.bound)
+    if(length(L.low > 0)){Data <- Data[-c(L.low),]}
+    
+    
+    old.latency <- Data$latency
+    sd_36 <- c()    
+    sd_47 <- c()    
+    m_3 <- c()
+    m_4 <- c()
+    m_6 <- c()
+    m_7 <- c()
+    
+    for(i in 1:N.subj){
+        id <- which(Data$subject==i)
+        tmp <- Data[id,]
+        id.er <- which(tmp$correct==0 | tmp$correct=="error")   # error 
+        id.co <- which(tmp$correct==1 | tmp$correct=="correct")   # correct
+        
+        b3 <- which(tmp$blocknum==3)
+        b4 <- which(tmp$blocknum==4)
+        b6 <- which(tmp$blocknum==6)
+        b7 <- which(tmp$blocknum==7)
+        
+        b36 <- c(b3,b6)
+        b47 <- c(b4,b7)   
+        
+        
+        tmp$latency[id.er] <- NA
+        
+        m3 <- mean(tmp$latency[b3],na.rm=TRUE) 
+        m4 <- mean(tmp$latency[b4],na.rm=TRUE) 
+        m6 <- mean(tmp$latency[b6],na.rm=TRUE) 
+        m7 <- mean(tmp$latency[b7],na.rm=TRUE) 
+        
+        s3 <- sd(tmp$latency[b3],na.rm=TRUE) 
+        s4 <- sd(tmp$latency[b4],na.rm=TRUE) 
+        s6 <- sd(tmp$latency[b6],na.rm=TRUE) 
+        s7 <- sd(tmp$latency[b7],na.rm=TRUE)
+        
+        sd_36 <- c(sd_36,sd(tmp$latency[b36],na.rm=TRUE))
+        sd_47 <- c(sd_47,sd(tmp$latency[b47],na.rm=TRUE))
+        
+        tmp$latency[b3][which(is.na(tmp$latency[b3])==TRUE)] <- m3 +2*s3
+        tmp$latency[b4][which(is.na(tmp$latency[b4])==TRUE)] <- m4 +2*s4
+        tmp$latency[b6][which(is.na(tmp$latency[b6])==TRUE)] <- m6 +2*s6
+        tmp$latency[b7][which(is.na(tmp$latency[b7])==TRUE)] <- m7 +2*s7
+        
+        m_3 <- c(m_3,mean(tmp$latency[b3],na.rm=TRUE))
+        m_4 <- c(m_4,mean(tmp$latency[b4],na.rm=TRUE))
+        m_6 <- c(m_6,mean(tmp$latency[b6],na.rm=TRUE))
+        m_7 <- c(m_7,mean(tmp$latency[b7],na.rm=TRUE))
+        
+        
+        Data[id,] <- tmp
+    }
+    
+    M63 <- m_6 - m_3    
+    M74 <- m_7 - m_4
+    
+    D1 <- M63/sd_36
+    D2 <- M74/sd_47
+    
+    D3<- (D1+D2)/2
+    
+    
+    out.d3 <- list(D63 = D1, D74 = D2, D=D3,M3 = m_3,M4 = m_4,M6 = m_6,M7 = m_7,SD36=sd_36,SD47=sd_47, Remove=rem.subj)
+    out.d3
+}
+
+
+
+D4f <- function(Data,exclude=exclude){
+    
+    N.subj <- length(unique(Data$subject))
+    lower.bound = 0
+    
+    # select blocks
+    Blocknrs <- c(3,4,6,7)
+    
+    N.blocks <- length(Blocknrs)
+    trials <- c()
+    
+    for(i in 1:N.blocks){
+        trials <- c(trials,which(Data$blocknum==Blocknrs[i]))
+    }
+    Data <- Data[trials,]
+    
+    exclude.trials <- exclude
+    rem.trials <- c()
+    
+    # remove certain trials
+    rem.trials <- unique(c(rem.trials,exclude.trials))
+    
+    if(length(rem.trials> 0)){
+        for(i in 1:length(rem.trials)){
+            na.trial <- which(Data$trialnum==rem.trials[i])
+            Data <- Data[-na.trial,]
+        }
+    }
+    
+    # save raw data
+    
+    Data.old <- Data
+    
+    # Remove Subjects with 10% trials < 300ms
+    
+    pct300 <- numeric(N.subj)
+    for(i in 1:N.subj){
+        sub <- which(Data$subject==i)
+        pct300[i] <- length(which(Data$latency[sub] < 300))/length(Data$latency[sub])
+    }
+    
+    rem.subj <- which(pct300 > 0.1) # later wegdoen...
+    
+    
+    L.10000 <- which(Data$latency > 10000)
+    if(length(L.10000 > 0)){Data <- Data[-c(L.10000),]}
+    L.low<- which(Data$latency < lower.bound)
+    if(length(L.low > 0)){Data <- Data[-c(L.low),]}
+    
+    old.latency <- Data$latency
+    sd_36 <- c()    
+    sd_47 <- c()    
+    m_3 <- c()
+    m_4 <- c()
+    m_6 <- c()
+    m_7 <- c()
+    
+    er3 <- c()
+    er4 <- c()
+    er6 <- c()
+    er7 <- c()
+    
+    
+    for(i in 1:N.subj){
+        id <- which(Data$subject==i)
+        tmp <- Data[id,]
+        id.er <- which(tmp$correct==0 | tmp$correct=="error")   # error 
+        id.co <- which(tmp$correct==1 | tmp$correct=="correct")   # correct
+        
+        b3 <- which(tmp$blocknum==3)
+        b4 <- which(tmp$blocknum==4)
+        b6 <- which(tmp$blocknum==6)
+        b7 <- which(tmp$blocknum==7)
+        
+        b36 <- c(b3,b6)
+        b47 <- c(b4,b7)   
+        
+        sd_36 <- c(sd_36,sd(tmp$latency[b36],na.rm=TRUE))
+        sd_47 <- c(sd_47,sd(tmp$latency[b47],na.rm=TRUE))
+        
+        tmp$latency[id.er] <- NA
+        
+        m3 <- mean(tmp$latency[b3],na.rm=TRUE) +600
+        m4 <- mean(tmp$latency[b4],na.rm=TRUE) +600
+        m6 <- mean(tmp$latency[b6],na.rm=TRUE) +600
+        m7 <- mean(tmp$latency[b7],na.rm=TRUE) +600
+        
+        er3 <- c(er3,length(which(is.na(tmp$latency[b3])==TRUE))/length(b3))
+        er4 <- c(er4,length(which(is.na(tmp$latency[b4])==TRUE))/length(b4))
+        er6 <- c(er6,length(which(is.na(tmp$latency[b6])==TRUE))/length(b6))
+        er7 <- c(er7,length(which(is.na(tmp$latency[b7])==TRUE))/length(b7))
+        
+        
+        tmp$latency[b3][which(is.na(tmp$latency[b3])==TRUE)] <- m3
+        tmp$latency[b4][which(is.na(tmp$latency[b4])==TRUE)] <- m4
+        tmp$latency[b6][which(is.na(tmp$latency[b6])==TRUE)] <- m6
+        tmp$latency[b7][which(is.na(tmp$latency[b7])==TRUE)] <- m7
+        
+        m_3 <- c(m_3,mean(tmp$latency[b3],na.rm=TRUE))
+        m_4 <- c(m_4,mean(tmp$latency[b4],na.rm=TRUE))
+        m_6 <- c(m_6,mean(tmp$latency[b6],na.rm=TRUE))
+        m_7 <- c(m_7,mean(tmp$latency[b7],na.rm=TRUE))
+        
+        
+        #Data[id,] <- tmp
+    }
+    
+    M63 <- m_6 - m_3    
+    M74 <- m_7 - m_4
+    
+    D1 <- M63/sd_36
+    D2 <- M74/sd_47
+    
+    D600 <- (D1+D2)/2
+    
+    out.d4 <- list(D63 = D1, D74 = D2, D=D600,M3 = m_3,M4 = m_4,M6 = m_6,M7 = m_7,SD36=sd_36,SD47=sd_47, Remove=rem.subj,er3=er3,er4=er4,er6=er6,er7=er7)
+    out.d4
+}
+
+
+
+D5f <- function(Data=Data, exclude=exclude){
+    
+    N.subj <- length(unique(Data$subject))
+    lower.bound = 400
+    
+    # select blocks
+    Blocknrs <- c(3,4,6,7)
+    
+    N.blocks <- length(Blocknrs)
+    trials <- c()
+    
+    for(i in 1:N.blocks){
+        trials <- c(trials,which(Data$blocknum==Blocknrs[i]))
+    }
+    Data <- Data[trials,]
+    
+    exclude.trials <- exclude
+    rem.trials <- c()
+    
+    # remove certain trials
+    rem.trials <- unique(c(rem.trials,exclude.trials))
+    
+    if(length(rem.trials> 0)){
+        for(i in 1:length(rem.trials)){
+            na.trial <- which(Data$trialnum==rem.trials[i])
+            Data <- Data[-na.trial,]
+        }
+    }
+    
+    # save raw data
+    
+    Data.old <- Data
+    
+    # Remove Subjects with 10% trials < 300ms
+    
+    pct300 <- numeric(N.subj)
+    for(i in 1:N.subj){
+        sub <- which(Data$subject==i)
+        pct300[i] <- length(which(Data$latency[sub] < 300))/length(Data$latency[sub])
+    }
+    
+    rem.subj <- which(pct300 > 0.1) # later wegdoen...
+    
+    
+    L.10000 <- which(Data$latency > 10000)
+    if(length(L.10000 > 0)){Data <- Data[-c(L.10000),]}
+    L.low<- which(Data$latency < lower.bound)
+    if(length(L.low > 0)){Data <- Data[-c(L.low),]}
+    
+    
+    old.latency <- Data$latency
+    sd_36 <- c()    
+    sd_47 <- c()    
+    m_3 <- c()
+    m_4 <- c()
+    m_6 <- c()
+    m_7 <- c()
+    
+    for(i in 1:N.subj){
+        id <- which(Data$subject==i)
+        tmp <- Data[id,]
+        id.er <- which(tmp$correct==0 | tmp$correct=="error")   # error 
+        id.co <- which(tmp$correct==1 | tmp$correct=="correct")   # correct
+        
+        b3 <- which(tmp$blocknum==3)
+        b4 <- which(tmp$blocknum==4)
+        b6 <- which(tmp$blocknum==6)
+        b7 <- which(tmp$blocknum==7)
+        
+        b36 <- c(b3,b6)
+        b47 <- c(b4,b7)   
+        
+        
+        tmp$latency[id.er] <- NA
+        
+        m3 <- mean(tmp$latency[b3],na.rm=TRUE) 
+        m4 <- mean(tmp$latency[b4],na.rm=TRUE) 
+        m6 <- mean(tmp$latency[b6],na.rm=TRUE) 
+        m7 <- mean(tmp$latency[b7],na.rm=TRUE) 
+        
+        s3 <- sd(tmp$latency[b3],na.rm=TRUE) 
+        s4 <- sd(tmp$latency[b4],na.rm=TRUE) 
+        s6 <- sd(tmp$latency[b6],na.rm=TRUE) 
+        s7 <- sd(tmp$latency[b7],na.rm=TRUE)
+        
+        sd_36 <- c(sd_36,sd(tmp$latency[b36],na.rm=TRUE))
+        sd_47 <- c(sd_47,sd(tmp$latency[b47],na.rm=TRUE))
+        
+        tmp$latency[b3][which(is.na(tmp$latency[b3])==TRUE)] <- m3 +2*s3
+        tmp$latency[b4][which(is.na(tmp$latency[b4])==TRUE)] <- m4 +2*s4
+        tmp$latency[b6][which(is.na(tmp$latency[b6])==TRUE)] <- m6 +2*s6
+        tmp$latency[b7][which(is.na(tmp$latency[b7])==TRUE)] <- m7 +2*s7
+        
+        m_3 <- c(m_3,mean(tmp$latency[b3],na.rm=TRUE))
+        m_4 <- c(m_4,mean(tmp$latency[b4],na.rm=TRUE))
+        m_6 <- c(m_6,mean(tmp$latency[b6],na.rm=TRUE))
+        m_7 <- c(m_7,mean(tmp$latency[b7],na.rm=TRUE))
+        
+        
+        Data[id,] <- tmp
+    }
+    
+    M63 <- m_6 - m_3    
+    M74 <- m_7 - m_4
+    
+    D1 <- M63/sd_36
+    D2 <- M74/sd_47
+    
+    D5<- (D1+D2)/2
+    
+    
+    out.d5 <- list(D63 = D1, D74 = D2, D=D5,M3 = m_3,M4 = m_4,M6 = m_6,M7 = m_7,SD36=sd_36,SD47=sd_47, Remove=rem.subj)
+    out.d5
+}
+
+
+D6f <- function(Data,exclude=exclude){
+    
+    N.subj <- length(unique(Data$subject))
+    lower.bound = 400
+    # select blocks
+    Blocknrs <- c(3,4,6,7)
+    
+    N.blocks <- length(Blocknrs)
+    trials <- c()
+    
+    for(i in 1:N.blocks){
+        trials <- c(trials,which(Data$blocknum==Blocknrs[i]))
+    }
+    Data <- Data[trials,]
+    
+    exclude.trials <- exclude
+    rem.trials <- c()
+    
+    # remove certain trials
+    rem.trials <- unique(c(rem.trials,exclude.trials))
+    
+    if(length(rem.trials> 0)){
+        for(i in 1:length(rem.trials)){
+            na.trial <- which(Data$trialnum==rem.trials[i])
+            Data <- Data[-na.trial,]
+        }
+    }
+    
+    # save raw data
+    
+    Data.old <- Data
+    
+    # Remove Subjects with 10% trials < 300ms
+    
+    pct300 <- numeric(N.subj)
+    for(i in 1:N.subj){
+        sub <- which(Data$subject==i)
+        pct300[i] <- length(which(Data$latency[sub] < 300))/length(Data$latency[sub])
+    }
+    
+    rem.subj <- which(pct300 > 0.1) # later wegdoen...
+    
+    
+    L.10000 <- which(Data$latency > 10000)
+    if(length(L.10000 > 0)){Data <- Data[-c(L.10000),]}
+    L.low<- which(Data$latency < lower.bound)
+    if(length(L.low > 0)){Data <- Data[-c(L.low),]}
+    
+    old.latency <- Data$latency
+    sd_36 <- c()    
+    sd_47 <- c()    
+    m_3 <- c()
+    m_4 <- c()
+    m_6 <- c()
+    m_7 <- c()
+    
+    er3 <- c()
+    er4 <- c()
+    er6 <- c()
+    er7 <- c()
+    
+    
+    for(i in 1:N.subj){
+        id <- which(Data$subject==i)
+        tmp <- Data[id,]
+        id.er <- which(tmp$correct==0 | tmp$correct=="error")   # error 
+        id.co <- which(tmp$correct==1 | tmp$correct=="correct")   # correct
+        
+        b3 <- which(tmp$blocknum==3)
+        b4 <- which(tmp$blocknum==4)
+        b6 <- which(tmp$blocknum==6)
+        b7 <- which(tmp$blocknum==7)
+        
+        b36 <- c(b3,b6)
+        b47 <- c(b4,b7)   
+        
+        sd_36 <- c(sd_36,sd(tmp$latency[b36],na.rm=TRUE))
+        sd_47 <- c(sd_47,sd(tmp$latency[b47],na.rm=TRUE))
+        
+        tmp$latency[id.er] <- NA
+        
+        m3 <- mean(tmp$latency[b3],na.rm=TRUE) +600
+        m4 <- mean(tmp$latency[b4],na.rm=TRUE) +600
+        m6 <- mean(tmp$latency[b6],na.rm=TRUE) +600
+        m7 <- mean(tmp$latency[b7],na.rm=TRUE) +600
+        
+        er3 <- c(er3,length(which(is.na(tmp$latency[b3])==TRUE))/length(b3))
+        er4 <- c(er4,length(which(is.na(tmp$latency[b4])==TRUE))/length(b4))
+        er6 <- c(er6,length(which(is.na(tmp$latency[b6])==TRUE))/length(b6))
+        er7 <- c(er7,length(which(is.na(tmp$latency[b7])==TRUE))/length(b7))
+        
+        
+        tmp$latency[b3][which(is.na(tmp$latency[b3])==TRUE)] <- m3
+        tmp$latency[b4][which(is.na(tmp$latency[b4])==TRUE)] <- m4
+        tmp$latency[b6][which(is.na(tmp$latency[b6])==TRUE)] <- m6
+        tmp$latency[b7][which(is.na(tmp$latency[b7])==TRUE)] <- m7
+        
+        m_3 <- c(m_3,mean(tmp$latency[b3],na.rm=TRUE))
+        m_4 <- c(m_4,mean(tmp$latency[b4],na.rm=TRUE))
+        m_6 <- c(m_6,mean(tmp$latency[b6],na.rm=TRUE))
+        m_7 <- c(m_7,mean(tmp$latency[b7],na.rm=TRUE))
+        
+        
+        #Data[id,] <- tmp
+    }
+    
+    M63 <- m_6 - m_3    
+    M74 <- m_7 - m_4
+    
+    D1 <- M63/sd_36
+    D2 <- M74/sd_47
+    
+    D600 <- (D1+D2)/2
+    
+    out.d6 <- list(D63 = D1, D74 = D2, D=D600,M3 = m_3,M4 = m_4,M6 = m_6,M7 = m_7,SD36=sd_36,SD47=sd_47, Remove=rem.subj,er3=er3,er4=er4,er6=er6,er7=er7)
+    out.d6
+}
+
+L1f <- function(Data,exclude=exclude){
+    
+    N.subj <- length(unique(Data$subject))
+    lower.bound = 0
+    # select blocks
+    Blocknrs <- c(4,7)
+    
+    N.blocks <- length(Blocknrs)
+    trials <- c()
+    
+    for(i in 1:N.blocks){
+        trials <- c(trials,which(Data$blocknum==Blocknrs[i]))
+    }
+    Data <- Data[trials,]
+    
+    exclude.trials <- exclude
+    
+    rem.trials <- c(1,2) + length(exclude.trials)
+    
+    # remove certain trials
+    rem.trials <- unique(c(rem.trials,exclude.trials))
+    
+    if(length(rem.trials> 0)){
+        for(i in 1:length(rem.trials)){
+            na.trial <- which(Data$trialnum==rem.trials[i])
+            Data <- Data[-na.trial,]
+        }
+    }
+    
+    # save raw data
+    
+    Data.old <- Data
+    
+    # Remove Subjects with 10% trials < 300ms
+    
+    pct300 <- numeric(N.subj)
+    for(i in 1:N.subj){
+        sub <- which(Data$subject==i)
+        pct300[i] <- length(which(Data$latency[sub] < 300))/length(Data$latency[sub])
+    }
+    
+    rem.subj <- which(pct300 > 0.1) # later wegdoen...
+    
+    
+    L.3000 <- which(Data$latency > 3000)
+    if(length(L.3000 > 0)){Data$latency[L.3000] <- 3000 }
+    L.300 <- which(Data$latency < 300)
+    if(length(L.300 > 0)){Data$latency[L.300] <- 300 }
+    
+    log47 <- c()
+    l4 <- c()
+    l7 <- c()
+    
+    
+    
+    for(i in 1:N.subj){
+        id <- which(Data$subject==i)
+        tmp <- Data[id,]
+        # zonder fouten
+        #idc <- which(tmp$correct==1)
+        #tmp <- tmp[idc,]
+        b4 <- which(tmp$blocknum==4)
+        b7 <- which(tmp$blocknum==7)
+        log4 <-  mean(log(tmp$latency[b4]),na.rm=TRUE)
+        
+        l4 <- c(l4,log4)
+        log7 <-  mean(log(tmp$latency[b7]),na.rm=TRUE)
+        l7 <- c(l7,log7)             
+        log47 <- c(log47,(log7-log4))
+    }
+    out.l1 <- list(log4 = l4, log7 = l7, log47 = log47, Remove=rem.subj)
+    out.l1 
+    
+    
+}
+
+
+
+L1cf <- function(Data,exclude=exclude){
+    
+    N.subj <- length(unique(Data$subject))
+    lower.bound = 0
+    # select blocks
+    Blocknrs <- c(4,7)
+    
+    N.blocks <- length(Blocknrs)
+    trials <- c()
+    
+    for(i in 1:N.blocks){
+        trials <- c(trials,which(Data$blocknum==Blocknrs[i]))
+    }
+    Data <- Data[trials,]
+    
+    exclude.trials <- exclude
+    rem.trials <- c(1,2) + length(exclude.trials)
+    
+    # remove certain trials
+    rem.trials <- unique(c(rem.trials,exclude.trials))
+    
+    if(length(rem.trials> 0)){
+        for(i in 1:length(rem.trials)){
+            na.trial <- which(Data$trialnum==rem.trials[i])
+            Data <- Data[-na.trial,]
+        }
+    }
+    
+    # save raw data
+    
+    Data.old <- Data
+    
+    # Remove Subjects with 10% trials < 300ms
+    
+    pct300 <- numeric(N.subj)
+    for(i in 1:N.subj){
+        sub <- which(Data$subject==i)
+        pct300[i] <- length(which(Data$latency[sub] < 300))/length(Data$latency[sub])
+    }
+    
+    rem.subj <- which(pct300 > 0.1) # later wegdoen...
+    
+    
+    L.3000 <- which(Data$latency > 3000)
+    if(length(L.3000 > 0)){Data$latency[L.3000] <- 3000 }
+    L.300 <- which(Data$latency < 300)
+    if(length(L.300 > 0)){Data$latency[L.300] <- 300 }
+    
+    log47 <- c()
+    l4 <- c()
+    l7 <- c()
+    
+    
+    
+    for(i in 1:N.subj){
+        id <- which(Data$subject==i)
+        tmp <- Data[id,]
+        # zonder fouten
+        idc <- which(tmp$correct==1)
+        tmp <- tmp[idc,]
+        b4 <- which(tmp$blocknum==4)
+        b7 <- which(tmp$blocknum==7)
+        log4 <-  mean(log(tmp$latency[b4]),na.rm=TRUE)
+        
+        l4 <- c(l4,log4)
+        log7 <-  mean(log(tmp$latency[b7]),na.rm=TRUE)
+        l7 <- c(l7,log7)             
+        log47 <- c(log47,(log7-log4))
+    }
+    out.l1c <- list(log4 = l4, log7 = l7, log47 = log47, Remove=rem.subj)
+    out.l1c 
+    
+    
+}
+
+
+
+L2f <- function(Data,exclude=exclude){
+    
+    N.subj <- length(unique(Data$subject))
+    lower.bound = 0
+    # select blocks
+    Blocknrs <- c(3,4,6,7)
+    
+    N.blocks <- length(Blocknrs)
+    trials <- c()
+    
+    for(i in 1:N.blocks){
+        trials <- c(trials,which(Data$blocknum==Blocknrs[i]))
+    }
+    Data <- Data[trials,]
+    
+    exclude.trials <- exclude
+    rem.trials <- c()
+    
+    # remove certain trials
+    rem.trials <- unique(c(rem.trials,exclude.trials))
+    
+    if(length(rem.trials> 0)){
+        for(i in 1:length(rem.trials)){
+            na.trial <- which(Data$trialnum==rem.trials[i])
+            Data <- Data[-na.trial,]
+        }
+    }
+    
+    # save raw data
+    
+    Data.old <- Data
+    
+    # Remove Subjects with 10% trials < 300ms
+    
+    pct300 <- numeric(N.subj)
+    for(i in 1:N.subj){
+        sub <- which(Data$subject==i)
+        pct300[i] <- length(which(Data$latency[sub] < 300))/length(Data$latency[sub])
+    }
+    
+    rem.subj <- which(pct300 > 0.1) # later wegdoen...
+    
+    
+    L.3000 <- which(Data$latency > 3000)
+    if(length(L.3000 > 0)){Data$latency[L.3000] <- 3000 }
+    L.300 <- which(Data$latency < 300)
+    if(length(L.300 > 0)){Data$latency[L.300] <- 300 }
+    
+    
+    l3 <- c()
+    l4 <- c()
+    l6 <-c()
+    l7 <- c()
+    l34 <- c()
+    l67 <- c()
+    log3467 <- c()    
+    
+    for(i in 1:N.subj){
+        id <- which(Data$subject==i)
+        tmp <- Data[id,]
+        # zonder fouten
+        #idc <- which(tmp$correct==1)
+        #tmp <- tmp[idc,]
+        b4 <- which(tmp$blocknum==4)
+        b7 <- which(tmp$blocknum==7)
+        b3 <- which(tmp$blocknum==3)
+        b6 <- which(tmp$blocknum==6)        
+        
+        log4 <-  mean(log(tmp$latency[b4]),na.rm=TRUE)
+        l4 <- c(l4,log4)
+        log7 <-  mean(log(tmp$latency[b7]),na.rm=TRUE)
+        l7 <- c(l7,log7)             
+        log3 <-  mean(log(tmp$latency[b3]),na.rm=TRUE)
+        l3 <- c(l3,log3)
+        log6 <-  mean(log(tmp$latency[b6]),na.rm=TRUE)
+        l6 <- c(l6,log6)        
+        
+        
+        b34 <- which(tmp$blocknum==4 | tmp$blocknum==3)
+        b67 <- which(tmp$blocknum==7| tmp$blocknum==6)
+        
+        log34 <-  mean(log(tmp$latency[b34]),na.rm=TRUE)
+        
+        l34 <- c(l34,log34)
+        log67 <-  mean(log(tmp$latency[b67]),na.rm=TRUE)
+        l67 <- c(l67,log67)             
+        log3467 <- c(log3467,(log67-log34))
+    }
+    out.l2 <- list(log3 = l3, log4 = l4,log6 = l6, log7 = l7, log3467 = log3467, Remove=rem.subj)
+    out.l2 
+    
+    
+}
+
+
+
+L2cf <- function(Data,exclude=exclude){
+    
+    N.subj <- length(unique(Data$subject))
+    lower.bound = 0
+    # select blocks
+    Blocknrs <- c(3,4,6,7)
+    
+    N.blocks <- length(Blocknrs)
+    trials <- c()
+    
+    for(i in 1:N.blocks){
+        trials <- c(trials,which(Data$blocknum==Blocknrs[i]))
+    }
+    Data <- Data[trials,]
+    
+    exclude.trials <- exclude
+    rem.trials <- c()
+    
+    # remove certain trials
+    rem.trials <- unique(c(rem.trials,exclude.trials))
+    
+    if(length(rem.trials> 0)){
+        for(i in 1:length(rem.trials)){
+            na.trial <- which(Data$trialnum==rem.trials[i])
+            Data <- Data[-na.trial,]
+        }
+    }
+    
+    # save raw data
+    
+    Data.old <- Data
+    
+    # Remove Subjects with 10% trials < 300ms
+    
+    pct300 <- numeric(N.subj)
+    for(i in 1:N.subj){
+        sub <- which(Data$subject==i)
+        pct300[i] <- length(which(Data$latency[sub] < 300))/length(Data$latency[sub])
+    }
+    
+    rem.subj <- which(pct300 > 0.1) # later wegdoen...
+    
+    
+    L.3000 <- which(Data$latency > 3000)
+    if(length(L.3000 > 0)){Data$latency[L.3000] <- 3000 }
+    L.300 <- which(Data$latency < 300)
+    if(length(L.300 > 0)){Data$latency[L.300] <- 300 }
+    
+    
+    l3 <- c()
+    l4 <- c()
+    l6 <-c()
+    l7 <- c()
+    l34 <- c()
+    l67 <- c()
+    log3467 <- c()    
+    
+    for(i in 1:N.subj){
+        id <- which(Data$subject==i)
+        tmp <- Data[id,]
+        # zonder fouten
+        idc <- which(tmp$correct==1)
+        tmp <- tmp[idc,]
+        b4 <- which(tmp$blocknum==4)
+        b7 <- which(tmp$blocknum==7)
+        b3 <- which(tmp$blocknum==3)
+        b6 <- which(tmp$blocknum==6)        
+        
+        log4 <-  mean(log(tmp$latency[b4]),na.rm=TRUE)
+        l4 <- c(l4,log4)
+        log7 <-  mean(log(tmp$latency[b7]),na.rm=TRUE)
+        l7 <- c(l7,log7)             
+        log3 <-  mean(log(tmp$latency[b3]),na.rm=TRUE)
+        l3 <- c(l3,log3)
+        log6 <-  mean(log(tmp$latency[b6]),na.rm=TRUE)
+        l6 <- c(l6,log6)        
+        
+        
+        b34 <- which(tmp$blocknum==4 | tmp$blocknum==3)
+        b67 <- which(tmp$blocknum==7| tmp$blocknum==6)
+        
+        log34 <-  mean(log(tmp$latency[b34]),na.rm=TRUE)
+        
+        l34 <- c(l34,log34)
+        log67 <-  mean(log(tmp$latency[b67]),na.rm=TRUE)
+        l67 <- c(l67,log67)             
+        log3467 <- c(log3467,(log67-log34))
+    }
+    out.l2c <- list(log3 = l3, log4 = l4,log6 = l6, log7 = l7, log3467 = log3467, Remove=rem.subj)
+    out.l2c 
+    
+    
+}
+
+
+    
+    
